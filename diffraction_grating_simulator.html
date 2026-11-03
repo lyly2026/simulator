@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>§9 衍射光栅与光栅光谱 - 5分钟 REST 课堂互动仿真器</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- MathJax for TeX rendering -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        /* Custom scrollbar for clean UI */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .tab-btn.active {
+            border-bottom-color: #38bdf8;
+            color: #38bdf8;
+            background-color: rgba(56, 189, 248, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-sky-500 selection:text-white">
+
+    <!-- Top Navigation & REST Timer Bar -->
+    <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-50 px-4 py-3 shadow-lg">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            
+            <!-- Title & Badge -->
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-sky-500/20 text-sky-400 rounded-xl border border-sky-500/30">
+                    <i class="fa-solid fa-bars-staggered text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold bg-gradient-to-r from-sky-400 to-indigo-300 bg-clip-text text-transparent">
+                        §9 衍射光栅与光栅光谱
+                    </h1>
+                    <p class="text-xs text-slate-400">大学物理·光学 | 5 分钟 REST 课堂互动工作单</p>
+                </div>
+            </div>
+
+            <!-- REST 5-Min Timer Widget -->
+            <div class="flex items-center bg-slate-800/80 border border-slate-700/80 rounded-full px-4 py-1.5 shadow-inner space-x-3">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-regular fa-clock text-sky-400 animate-pulse"></i>
+                    <span id="timer-display" class="font-mono text-lg font-bold text-sky-300 tracking-wider">05:00</span>
+                </div>
+                <div class="h-4 w-px bg-slate-700"></div>
+                <div class="flex items-center space-x-1">
+                    <button id="btn-timer-start" onclick="toggleTimer()" class="p-1.5 hover:bg-slate-700 rounded-full text-slate-300 hover:text-emerald-400 transition" title="开始/暂停">
+                        <i id="timer-icon" class="fa-solid fa-play text-xs"></i>
+                    </button>
+                    <button onclick="resetTimer()" class="p-1.5 hover:bg-slate-700 rounded-full text-slate-300 hover:text-rose-400 transition" title="重置">
+                        <i class="fa-solid fa-rotate-left text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+
+        <!-- Navigation Tabs (R - E - S - T) -->
+        <div class="border-b border-slate-800 flex overflow-x-auto space-x-2 text-sm font-medium">
+            <button onclick="switchTab('R')" id="tab-R" class="tab-btn active px-4 py-2.5 rounded-t-lg border-b-2 border-transparent hover:text-sky-400 transition flex items-center space-x-2 whitespace-nowrap">
+                <span class="w-6 h-6 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs font-bold">R</span>
+                <span>Review 复习</span>
+            </button>
+            <button onclick="switchTab('E')" id="tab-E" class="tab-btn px-4 py-2.5 rounded-t-lg border-b-2 border-transparent hover:text-sky-400 transition flex items-center space-x-2 whitespace-nowrap">
+                <span class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold">E</span>
+                <span>Experience 仿真</span>
+            </button>
+            <button onclick="switchTab('S')" id="tab-S" class="tab-btn px-4 py-2.5 rounded-t-lg border-b-2 border-transparent hover:text-sky-400 transition flex items-center space-x-2 whitespace-nowrap">
+                <span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs font-bold">S</span>
+                <span>Search 自主探究</span>
+            </button>
+            <button onclick="switchTab('T')" id="tab-T" class="tab-btn px-4 py-2.5 rounded-t-lg border-b-2 border-transparent hover:text-sky-400 transition flex items-center space-x-2 whitespace-nowrap">
+                <span class="w-6 h-6 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs font-bold">T</span>
+                <span>Test 微测</span>
+            </button>
+        </div>
+
+        <!-- TAB CONTENT: R (REVIEW) -->
+        <section id="content-R" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <!-- Card 1 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm hover:border-slate-700 transition">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="p-2 bg-sky-500/10 text-sky-400 rounded-lg"><i class="fa-solid fa-ruler-horizontal"></i></div>
+                        <h3 class="font-bold text-slate-200">1. 光栅常数与方程</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-3">光栅常数 $d = a + b$ ($a$ 为透光宽度，$b$ 为不透光宽度)。主极大干涉条件：</p>
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center text-sky-300 font-mono text-sm">
+                        $(a+b)\sin\varphi = k\lambda$
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-2">$k = 0, \pm 1, \pm 2, \dots$ 为光谱级数。</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm hover:border-slate-700 transition">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg"><i class="fa-solid fa-eye-slash"></i></div>
+                        <h3 class="font-bold text-slate-200">2. 缺级现象 (Missing Orders)</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-3">当主极大位置恰好落于单缝衍射暗纹方向 ($a\sin\varphi = k'\lambda$) 时，主极大消失：</p>
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center text-emerald-300 font-mono text-sm">
+                        $k = \frac{a+b}{a} \cdot k'$
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-2">$k' = \pm 1, \pm 2, \dots$ 为单缝衍射暗纹级数。</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm hover:border-slate-700 transition">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="p-2 bg-amber-500/10 text-amber-400 rounded-lg"><i class="fa-solid fa-bolt"></i></div>
+                        <h3 class="font-bold text-slate-200">3. 光强与明纹锐度</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-3">主极大强度与透光缝数 $N$ 的平方成正比。两主极大之间包含：</p>
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center text-amber-300 font-mono text-sm">
+                        $I = N^2 I_0$
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-2">存在 $N-1$ 个极小（暗纹）和 $N-2$ 个次极大。</p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm hover:border-slate-700 transition">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="p-2 bg-purple-500/10 text-purple-400 rounded-lg"><i class="fa-solid fa-arrows-split-up-and-left"></i></div>
+                        <h3 class="font-bold text-slate-200">4. 斜入射光栅方程</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-3">平行光以入射角 $\theta$ 斜入射时，邻缝光程差调整为：</p>
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center text-purple-300 font-mono text-sm">
+                        $(a+b)(\sin\varphi \mp \sin\theta) = k\lambda$
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-2">同侧取加号，异侧取减号；中央明纹移动至 $\varphi = \theta$。</p>
+                </div>
+
+            </div>
+
+            <!-- Total Combined Intensity Formula Banner -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-5 text-sky-400 text-9xl font-serif select-none pointer-events-none">$\Psi$</div>
+                <h3 class="text-md font-bold text-slate-200 mb-2 flex items-center space-x-2">
+                    <i class="fa-solid fa-square-root-variable text-sky-400"></i>
+                    <span>光栅衍射综合光强分布公式</span>
+                </h3>
+                <p class="text-xs text-slate-400 mb-4">
+                    光栅衍射是<b>单缝衍射</b>（包络线因子）与<b>多缝干涉</b>（细锐调制因子）共同作用的结果：
+                </p>
+                <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 overflow-x-auto text-center font-mono text-sm md:text-base text-sky-300">
+                    $$I(\varphi) = I_0 \cdot \left[ \frac{\sin\left(\frac{\pi a}{\lambda}\sin\varphi\right)}{\frac{\pi a}{\lambda}\sin\varphi} \right]^2 \cdot \left[ \frac{\sin\left(\frac{N\pi (a+b)}{\lambda}\sin\varphi\right)}{\sin\left(\frac{\pi (a+b)}{\lambda}\sin\varphi\right)} \right]^2$$
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: E (EXPERIENCE / SIMULATOR) -->
+        <section id="content-E" class="hidden flex-col gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Left: Control Panel (4 cols) -->
+                <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col gap-5 shadow-sm">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <h3 class="font-bold text-slate-200 flex items-center space-x-2">
+                            <i class="fa-solid fa-sliders text-emerald-400"></i>
+                            <span>光栅实验参数调节</span>
+                        </h3>
+                        <button onclick="resetSimParams()" class="text-xs text-slate-400 hover:text-sky-400 transition flex items-center space-x-1">
+                            <i class="fa-solid fa-arrow-rotate-right"></i>
+                            <span>默认</span>
+                        </button>
+                    </div>
+
+                    <!-- Slider 1: Slit Count N -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">缝数 $N$:</span>
+                            <span id="val-N" class="font-mono font-bold text-emerald-400">10</span>
+                        </div>
+                        <input type="range" id="param-N" min="2" max="50" value="10" step="1" oninput="updateSim()" class="w-full accent-emerald-500 bg-slate-950 h-2 rounded-lg cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500">
+                            <span>2 (双缝)</span>
+                            <span>25</span>
+                            <span>50 (高分辨率)</span>
+                        </div>
+                    </div>
+
+                    <!-- Slider 2: Slit Width a -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">透光缝宽 $a$ ($\mu\text{m}$):</span>
+                            <span id="val-a" class="font-mono font-bold text-emerald-400">2.0</span>
+                        </div>
+                        <input type="range" id="param-a" min="0.5" max="5.0" value="2.0" step="0.1" oninput="updateSim()" class="w-full accent-emerald-500 bg-slate-950 h-2 rounded-lg cursor-pointer">
+                    </div>
+
+                    <!-- Slider 3: Grating Constant d = a+b -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">光栅常数 $d=a+b$ ($\mu\text{m}$):</span>
+                            <span id="val-d" class="font-mono font-bold text-emerald-400">6.0</span>
+                        </div>
+                        <input type="range" id="param-d" min="1.0" max="12.0" value="6.0" step="0.1" oninput="updateSim()" class="w-full accent-emerald-500 bg-slate-950 h-2 rounded-lg cursor-pointer">
+                        <div class="text-[10px] text-slate-500 text-right">
+                            $d/a = $ <span id="ratio-da" class="font-mono text-amber-400">3.0</span>
+                        </div>
+                    </div>
+
+                    <!-- Slider 4: Wavelength lambda -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">波长 $\lambda$ ($\text{nm}$):</span>
+                            <span id="val-lambda" class="font-mono font-bold text-sky-400">600</span>
+                        </div>
+                        <input type="range" id="param-lambda" min="400" max="700" value="600" step="5" oninput="updateSim()" class="w-full accent-sky-500 bg-slate-950 h-2 rounded-lg cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500">
+                            <span class="text-purple-400">400 (紫)</span>
+                            <span class="text-emerald-400">532 (绿)</span>
+                            <span class="text-rose-400">700 (红)</span>
+                        </div>
+                    </div>
+
+                    <!-- Slider 5: Angle of Incidence theta -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">入射角 $\theta$ ($^\circ$):</span>
+                            <span id="val-theta" class="font-mono font-bold text-purple-400">0</span>
+                        </div>
+                        <input type="range" id="param-theta" min="-40" max="40" value="0" step="1" oninput="updateSim()" class="w-full accent-purple-500 bg-slate-950 h-2 rounded-lg cursor-pointer">
+                    </div>
+
+                    <!-- Mode Selectors -->
+                    <div class="pt-2 border-t border-slate-800 space-y-3">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-slate-300">白光连续光谱演示:</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="mode-white-light" onchange="updateSim()" class="sr-only peer">
+                                <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sky-500"></div>
+                            </label>
+                        </div>
+
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-slate-300">显示单缝衍射包络线:</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="show-envelope" checked onchange="updateSim()" class="sr-only peer">
+                                <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right: Visual Canvas Display & Live Diagnostics (8 cols) -->
+                <div class="lg:col-span-8 flex flex-col gap-4">
+                    
+                    <!-- Intensity Canvas Card -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-300 flex items-center space-x-2">
+                                <i class="fa-solid fa-chart-line text-sky-400"></i>
+                                <span>光强分布曲线 $I(\varphi)$</span>
+                            </span>
+                            <span class="text-[11px] text-slate-500">横轴：衍射角 $\varphi (-90^\circ \sim +90^\circ)$</span>
+                        </div>
+
+                        <!-- Canvas 1: Graph -->
+                        <div class="relative w-full h-56 bg-slate-950 rounded-xl overflow-hidden border border-slate-800">
+                            <canvas id="canvas-intensity" class="w-full h-full block"></canvas>
+                        </div>
+
+                        <div class="flex items-center justify-between mt-1">
+                            <span class="text-xs font-bold text-slate-300 flex items-center space-x-2">
+                                <i class="fa-solid fa-eye text-emerald-400"></i>
+                                <span>光屏衍射条纹图样预览</span>
+                            </span>
+                        </div>
+
+                        <!-- Canvas 2: Screen Pattern -->
+                        <div class="relative w-full h-16 bg-slate-950 rounded-xl overflow-hidden border border-slate-800">
+                            <canvas id="canvas-screen" class="w-full h-full block"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Real-time Diagnostics Board -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                        
+                        <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                            <div class="text-slate-500 mb-1">理论最高极数 $k_{\max}$</div>
+                            <div id="diag-kmax" class="font-mono text-lg font-bold text-sky-400">10</div>
+                        </div>
+
+                        <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                            <div class="text-slate-500 mb-1">缺级级数 $k$</div>
+                            <div id="diag-missing" class="font-mono text-sm font-bold text-amber-400 truncate">±3, ±6, ±9</div>
+                        </div>
+
+                        <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                            <div class="text-slate-500 mb-1">实际可观测主极大数</div>
+                            <div id="diag-total-fringes" class="font-mono text-lg font-bold text-emerald-400">15 条</div>
+                        </div>
+
+                        <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                            <div class="text-slate-500 mb-1">中央明纹偏转角</div>
+                            <div id="diag-center-shift" class="font-mono text-lg font-bold text-purple-400">0.0°</div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: S (SEARCH & CALCULATE) -->
+        <section id="content-S" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
+                <h3 class="text-md font-bold text-slate-200 mb-4 flex items-center space-x-2">
+                    <i class="fa-solid fa-calculator text-amber-400"></i>
+                    <span>光栅衍射定量分析与缺级推导计算器</span>
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">光栅常数 $d = a+b$ ($\mu\text{m}$)</label>
+                        <input type="number" id="calc-d" value="6.0" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">透光缝宽 $a$ ($\mu\text{m}$)</label>
+                        <input type="number" id="calc-a" value="1.5" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">入射光波长 $\lambda$ ($\text{nm}$)</label>
+                        <input type="number" id="calc-lambda" value="500" step="10" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">斜入射角 $\theta$ ($^\circ$)</label>
+                        <input type="number" id="calc-theta" value="0" step="1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-amber-500">
+                    </div>
+                </div>
+
+                <button onclick="runCalculation()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>开始计算并生成完整解析</span>
+                </button>
+
+                <!-- Calculation Output Step-by-Step Card -->
+                <div id="calc-output" class="mt-6 bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3 text-xs leading-relaxed text-slate-300">
+                    <p class="text-slate-500 italic">在上方输入参数并点击“开始计算”按钮...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: T (TEST) -->
+        <section id="content-T" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+                <div>
+                    <h3 class="font-bold text-slate-200">1 分钟课堂微测试</h3>
+                    <p class="text-xs text-slate-400">检测你对光栅衍射核心概念与缺级规律的掌握情况。</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs text-slate-400">得分：</span>
+                    <span id="quiz-score" class="font-mono text-xl font-bold text-rose-400">0 / 3</span>
+                </div>
+            </div>
+
+            <!-- Quiz Items List -->
+            <div class="space-y-4">
+                
+                <!-- Q1 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+                    <div class="text-sm font-medium text-slate-200">
+                        1. 白光垂直照射到光栅上，其中央零级明纹（$k=0$）的颜色是（ \quad ）？
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <button onclick="checkAnswer(1, 'A')" class="q1-opt text-left p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition">A. 彩色光谱 (内紫外红)</button>
+                        <button onclick="checkAnswer(1, 'B')" class="q1-opt text-left p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition">B. 纯白色</button>
+                        <button onclick="checkAnswer(1, 'C')" class="q1-opt text-left p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition">C. 暗纹（光强为零）</button>
+                        <button onclick="checkAnswer(1, 'D')" class="q1-opt text-left p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition">D. 呈现单色绿光</button>
+                    </div>
+                    <div id="q1-explain" class="hidden p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-300"></div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+                    <div class="text-sm font-medium text-slate-200">
+                        2. 若某透射光栅的光栅常数 $d = a+b$ 与缝宽 $a$ 满足 $d = 3a$，则该光栅在屏上缺失的主极大级数 $k$ 为（ \quad ）？
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <button onclick="checkAnswer(2, 'A')" class="q2-opt text-left p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition">A. $k = \pm 1, \pm 2, \pm 3 \dots$</button>
+                        <button onclick="checkAnswer(2, 'B')" class="q2-opt text-left p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition">B. $k = \pm 2, \pm 4, \pm 6 \dots$</button>
+                        <button onclick="checkAnswer(2, 'C')" class="q2-opt text-left p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition">C. $k = \pm 3, \pm 6, \pm 9 \dots$</button>
+                        <button onclick="checkAnswer(2, 'D')" class="q2-opt text-left p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition">D. 不会发生缺级</button>
+                    </div>
+                    <div id="q2-explain" class="hidden p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-300"></div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+                    <div class="text-sm font-medium text-slate-200">
+                        3. 保持透光缝宽 $a$ 和光栅常数 $d$ 不变，当缝数 $N$ 从 5 增加到 50 时，主极大明纹的变化特点是（ \quad ）？
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <button onclick="checkAnswer(3, 'A')" class="q3-opt text-left p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition">A. 明纹间距变大，亮度减弱</button>
+                        <button onclick="checkAnswer(3, 'B')" class="q3-opt text-left p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition">B. 明纹变得极细极亮，主极大位置不变</button>
+                        <button onclick="checkAnswer(3, 'C')" class="q3-opt text-left p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition">C. 主极大消失，变为连续均匀分布</button>
+                        <button onclick="checkAnswer(3, 'D')" class="q3-opt text-left p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition">D. 缺级位置改变</button>
+                    </div>
+                    <div id="q3-explain" class="hidden p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-300"></div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 py-4 text-center text-xs text-slate-500">
+        §9 衍射光栅与光栅光谱 · 物理仿真教学互动组件
+    </footer>
+
+    <!-- JavaScript Engine -->
+    <script>
+        // --- Tab Switching Logic ---
+        function switchTab(tabKey) {
+            ['R', 'E', 'S', 'T'].forEach(k => {
+                document.getElementById(`content-${k}`).classList.add('hidden');
+                document.getElementById(`tab-${k}`).classList.remove('active');
+            });
+
+            const targetContent = document.getElementById(`content-${tabKey}`);
+            targetContent.classList.remove('hidden');
+            if (tabKey === 'E') targetContent.classList.add('flex');
+            
+            document.getElementById(`tab-${tabKey}`).classList.add('active');
+
+            if (tabKey === 'E') {
+                setTimeout(updateSim, 50); // Resize and render canvases
+            }
+        }
+
+        // --- 5-Min Timer Logic ---
+        let timerSeconds = 300;
+        let timerInterval = null;
+        let isTimerRunning = false;
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+            const s = (timerSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('timer-display').textContent = `${m}:${s}`;
+        }
+
+        function toggleTimer() {
+            const btnIcon = document.getElementById('timer-icon');
+            if (isTimerRunning) {
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+                btnIcon.className = 'fa-solid fa-play text-xs';
+            } else {
+                if (timerSeconds <= 0) timerSeconds = 300;
+                timerInterval = setInterval(() => {
+                    if (timerSeconds > 0) {
+                        timerSeconds--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        isTimerRunning = false;
+                        btnIcon.className = 'fa-solid fa-play text-xs';
+                    }
+                }, 1000);
+                isTimerRunning = true;
+                btnIcon.className = 'fa-solid fa-pause text-xs';
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            timerSeconds = 300;
+            updateTimerDisplay();
+            document.getElementById('timer-icon').className = 'fa-solid fa-play text-xs';
+        }
+
+        // --- Spectral Wavelength Color Helper ---
+        function wavelengthToRGB(wavelength) {
+            let R, G, B, alpha;
+            let wl = wavelength;
+
+            if (wl >= 380 && wl < 440) {
+                R = -1 * (wl - 440) / (440 - 380); G = 0; B = 1;
+            } else if (wl >= 440 && wl < 490) {
+                R = 0; G = (wl - 440) / (490 - 440); B = 1;
+            } else if (wl >= 490 && wl < 510) {
+                R = 0; G = 1; B = -1 * (wl - 510) / (510 - 490);
+            } else if (wl >= 510 && wl < 580) {
+                R = (wl - 510) / (580 - 510); G = 1; B = 0;
+            } else if (wl >= 580 && wl < 645) {
+                R = 1; G = -1 * (wl - 645) / (645 - 580); B = 0;
+            } else if (wl >= 645 && wl <= 780) {
+                R = 1; G = 0; B = 0;
+            } else {
+                R = 0; G = 0; B = 0;
+            }
+
+            return `rgb(${Math.round(R * 255)}, ${Math.round(G * 255)}, ${Math.round(B * 255)})`;
+        }
+
+        // --- Simulator Canvas Rendering Logic ---
+        function updateSim() {
+            const N = parseInt(document.getElementById('param-N').value);
+            const a = parseFloat(document.getElementById('param-a').value);
+            let d = parseFloat(document.getElementById('param-d').value);
+            
+            // Enforce d >= a
+            if (d < a) {
+                d = a;
+                document.getElementById('param-d').value = d;
+            }
+
+            const lambda = parseFloat(document.getElementById('param-lambda').value); // in nm
+            const theta = parseFloat(document.getElementById('param-theta').value); // in deg
+            const isWhiteLight = document.getElementById('mode-white-light').checked;
+            const showEnvelope = document.getElementById('show-envelope').checked;
+
+            // Update DOM numeric labels
+            document.getElementById('val-N').textContent = N;
+            document.getElementById('val-a').textContent = a.toFixed(1);
+            document.getElementById('val-d').textContent = d.toFixed(1);
+            document.getElementById('val-lambda').textContent = Math.round(lambda);
+            document.getElementById('val-theta').textContent = theta;
+            
+            const ratioDA = (d / a).toFixed(2);
+            document.getElementById('ratio-da').textContent = ratioDA;
+
+            // Diagnostics calculations
+            const lambda_um = lambda / 1000.0;
+            const kMaxTheoretical = Math.floor(d / lambda_um);
+            document.getElementById('diag-kmax').textContent = kMaxTheoretical;
+
+            // Missing orders
+            const missingOrders = [];
+            const ratioRatio = d / a;
+            if (Math.abs(ratioRatio - Math.round(ratioRatio)) < 1e-3) {
+                const step = Math.round(ratioRatio);
+                for (let m = 1; m * step <= kMaxTheoretical + 5; m++) {
+                    missingOrders.push(`±${m * step}`);
+                }
+            }
+            document.getElementById('diag-missing').textContent = missingOrders.length > 0 ? missingOrders.slice(0, 4).join(', ') : '无缺级';
+
+            // Total bright fringes
+            let totalFringes = 0;
+            for (let k = -kMaxTheoretical; k <= kMaxTheoretical; k++) {
+                if (Math.abs(ratioRatio - Math.round(ratioRatio)) < 1e-3) {
+                    const step = Math.round(ratioRatio);
+                    if (k !== 0 && Math.abs(k) % step === 0) continue; // missing
+                }
+                totalFringes++;
+            }
+            document.getElementById('diag-total-fringes').textContent = `${totalFringes} 条`;
+            document.getElementById('diag-center-shift').textContent = `${theta}°`;
+
+            // Draw Intensity & Screen Canvases
+            drawIntensityCanvas(N, a, d, lambda, theta, isWhiteLight, showEnvelope);
+            drawScreenCanvas(N, a, d, lambda, theta, isWhiteLight);
+        }
+
+        function drawIntensityCanvas(N, a, d, lambda, theta, isWhiteLight, showEnvelope) {
+            const canvas = document.getElementById('canvas-intensity');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            // Resize canvas to container width
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio || 800;
+            canvas.height = rect.height * window.devicePixelRatio || 300;
+
+            const W = canvas.width;
+            const H = canvas.height;
+            ctx.clearRect(0, 0, W, H);
+
+            // Draw Grid
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, H - 25); ctx.lineTo(W, H - 25); // Axis
+            ctx.moveTo(W / 2, 0); ctx.lineTo(W / 2, H); // Center
+            ctx.stroke();
+
+            const lambda_um = lambda / 1000.0;
+            const theta_rad = (theta * Math.PI) / 180.0;
+
+            const colorRGB = wavelengthToRGB(lambda);
+
+            // Function to calculate intensity at angle phi (rad)
+            function getIntensity(phi, lam) {
+                const beta = (Math.PI * a / lam) * Math.sin(phi);
+                const gamma = (Math.PI * d / lam) * (Math.sin(phi) - Math.sin(theta_rad));
+
+                let diff = (Math.abs(beta) < 1e-5) ? 1.0 : Math.sin(beta) / beta;
+                let singleDiff = diff * diff;
+
+                let interf = (Math.abs(Math.sin(gamma)) < 1e-5) ? N : Math.sin(N * gamma) / Math.sin(gamma);
+                let multiInterf = (interf * interf) / (N * N);
+
+                return singleDiff * multiInterf;
+            }
+
+            function getEnvelope(phi, lam) {
+                const beta = (Math.PI * a / lam) * Math.sin(phi);
+                let diff = (Math.abs(beta) < 1e-5) ? 1.0 : Math.sin(beta) / beta;
+                return diff * diff;
+            }
+
+            const maxAngle = Math.PI / 3; // -60 to +60 deg range for visibility
+
+            if (isWhiteLight) {
+                // Plot composite white light spectrum curves
+                const wavelengths = [420, 480, 530, 580, 650];
+                wavelengths.forEach(wl => {
+                    const wl_um = wl / 1000.0;
+                    const cRGB = wavelengthToRGB(wl);
+                    ctx.beginPath();
+                    ctx.strokeStyle = cRGB;
+                    ctx.lineWidth = 1.5;
+
+                    for (let px = 0; px <= W; px++) {
+                        const phi = ((px - W / 2) / (W / 2)) * maxAngle;
+                        const I = getIntensity(phi, wl_um);
+                        const py = (H - 30) - I * (H - 50);
+                        if (px === 0) ctx.moveTo(px, py);
+                        else ctx.lineTo(px, py);
+                    }
+                    ctx.stroke();
+                });
+            } else {
+                // Single wavelength intensity curve
+                ctx.beginPath();
+                ctx.strokeStyle = colorRGB;
+                ctx.lineWidth = 2;
+
+                for (let px = 0; px <= W; px++) {
+                    const phi = ((px - W / 2) / (W / 2)) * maxAngle;
+                    const I = getIntensity(phi, lambda_um);
+                    const py = (H - 30) - I * (H - 50);
+                    if (px === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+
+                // Draw Single-Slit Envelope if checked
+                if (showEnvelope) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = 'rgba(251, 191, 36, 0.6)'; // Amber dashed
+                    ctx.setLineDash([4, 4]);
+                    ctx.lineWidth = 1.5;
+
+                    for (let px = 0; px <= W; px++) {
+                        const phi = ((px - W / 2) / (W / 2)) * maxAngle;
+                        const Env = getEnvelope(phi, lambda_um);
+                        const py = (H - 30) - Env * (H - 50);
+                        if (px === 0) ctx.moveTo(px, py);
+                        else ctx.lineTo(px, py);
+                    }
+                    ctx.stroke();
+                    ctx.setLineDash([]); // reset
+                }
+            }
+
+            // Draw axis labels
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '10px monospace';
+            ctx.fillText('-60°', 10, H - 8);
+            ctx.fillText('0°', W / 2 - 6, H - 8);
+            ctx.fillText('+60°', W - 35, H - 8);
+        }
+
+        function drawScreenCanvas(N, a, d, lambda, theta, isWhiteLight) {
+            const canvas = document.getElementById('canvas-screen');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio || 800;
+            canvas.height = rect.height * window.devicePixelRatio || 100;
+
+            const W = canvas.width;
+            const H = canvas.height;
+            ctx.clearRect(0, 0, W, H);
+
+            const maxAngle = Math.PI / 3;
+            const theta_rad = (theta * Math.PI) / 180.0;
+
+            const imgData = ctx.createImageData(W, H);
+
+            for (let px = 0; px < W; px++) {
+                const phi = ((px - W / 2) / (W / 2)) * maxAngle;
+
+                let r = 0, g = 0, b = 0;
+
+                if (isWhiteLight) {
+                    // Accumulate spectrum for white light
+                    for (let wl = 400; wl <= 700; wl += 20) {
+                        const wl_um = wl / 1000.0;
+                        const beta = (Math.PI * a / wl_um) * Math.sin(phi);
+                        const gamma = (Math.PI * d / wl_um) * (Math.sin(phi) - Math.sin(theta_rad));
+
+                        let diff = (Math.abs(beta) < 1e-5) ? 1.0 : Math.sin(beta) / beta;
+                        let singleDiff = diff * diff;
+
+                        let interf = (Math.abs(Math.sin(gamma)) < 1e-5) ? N : Math.sin(N * gamma) / Math.sin(gamma);
+                        let I = singleDiff * (interf * interf) / (N * N);
+
+                        // Extract RGB components
+                        let wlColor = wavelengthToRGB(wl).match(/\d+/g);
+                        r += parseInt(wlColor[0]) * I;
+                        g += parseInt(wlColor[1]) * I;
+                        b += parseInt(wlColor[2]) * I;
+                    }
+                    r = Math.min(255, r * 0.25);
+                    g = Math.min(255, g * 0.25);
+                    b = Math.min(255, b * 0.25);
+                } else {
+                    const lambda_um = lambda / 1000.0;
+                    const beta = (Math.PI * a / lambda_um) * Math.sin(phi);
+                    const gamma = (Math.PI * d / lambda_um) * (Math.sin(phi) - Math.sin(theta_rad));
+
+                    let diff = (Math.abs(beta) < 1e-5) ? 1.0 : Math.sin(beta) / beta;
+                    let singleDiff = diff * diff;
+
+                    let interf = (Math.abs(Math.sin(gamma)) < 1e-5) ? N : Math.sin(N * gamma) / Math.sin(gamma);
+                    let I = singleDiff * (interf * interf) / (N * N);
+
+                    let wlColor = wavelengthToRGB(lambda).match(/\d+/g);
+                    r = parseInt(wlColor[0]) * I;
+                    g = parseInt(wlColor[1]) * I;
+                    b = parseInt(wlColor[2]) * I;
+                }
+
+                for (let py = 0; py < H; py++) {
+                    const idx = (py * W + px) * 4;
+                    imgData.data[idx] = r;
+                    imgData.data[idx + 1] = g;
+                    imgData.data[idx + 2] = b;
+                    imgData.data[idx + 3] = 255;
+                }
+            }
+
+            ctx.putImageData(imgData, 0, 0);
+        }
+
+        function resetSimParams() {
+            document.getElementById('param-N').value = 10;
+            document.getElementById('param-a').value = 2.0;
+            document.getElementById('param-d').value = 6.0;
+            document.getElementById('param-lambda').value = 600;
+            document.getElementById('param-theta').value = 0;
+            document.getElementById('mode-white-light').checked = false;
+            document.getElementById('show-envelope').checked = true;
+            updateSim();
+        }
+
+        // --- Search & Calculate Step-by-Step Solver ---
+        function runCalculation() {
+            const d = parseFloat(document.getElementById('calc-d').value);
+            const a = parseFloat(document.getElementById('calc-a').value);
+            const lambda = parseFloat(document.getElementById('calc-lambda').value);
+            const theta = parseFloat(document.getElementById('calc-theta').value);
+
+            const lambda_um = lambda / 1000.0;
+            const kMax = Math.floor(d / lambda_um);
+
+            const ratio = d / a;
+            const isRatioInt = Math.abs(ratio - Math.round(ratio)) < 1e-4;
+            const missingStep = isRatioInt ? Math.round(ratio) : null;
+
+            let missingList = [];
+            let validOrders = [];
+
+            for (let k = -kMax; k <= kMax; k++) {
+                if (isRatioInt && k !== 0 && Math.abs(k) % missingStep === 0) {
+                    missingList.push(k);
+                } else {
+                    validOrders.push(k);
+                }
+            }
+
+            const outputDiv = document.getElementById('calc-output');
+            outputDiv.innerHTML = `
+                <div class="text-amber-400 font-bold border-b border-slate-800 pb-2 flex items-center space-x-2">
+                    <i class="fa-solid fa-square-check"></i>
+                    <span>计算推导结果解析:</span>
+                </div>
+                <p><b>1. 光栅理论最高主极大级数 $k_{\\max}$:</b><br>
+                   由光栅方程 $(a+b)\\sin\\varphi = k\\lambda$，当 $|\sin\\varphi| \\le 1$ 时：
+                   $$k_{\\max} < \\frac{a+b}{\\lambda} = \\frac{${d}\\,\\mu\\text{m}}{${lambda_um.toFixed(3)}\\,\\mu\\text{m}} = ${(d / lambda_um).toFixed(2)} \\implies k_{\\max} = \\mathbf{${kMax}}$$
+                </p>
+                <p><b>2. 缺级分析 (Missing Orders):</b><br>
+                   比值 $\\frac{a+b}{a} = \\frac{${d}}{${a}} = ${ratio.toFixed(2)}$。
+                   ${isRatioInt ? `由于比值为整数 $m = ${missingStep}$，故级数 $k = \\pm ${missingStep}, \\pm ${2*missingStep}, \\dots$ 发生缺级！` : `比值非整数，理论上不发生完全缺级。`}
+                </p>
+                <p><b>3. 屏上实际呈现的主极大明纹总数:</b><br>
+                   理论总数 $2k_{\\max}+1 = ${2*kMax+1}$ 条，扣除缺级 ${missingList.length} 条，实际呈现 <span class="text-emerald-400 font-bold font-mono">${validOrders.length} 条</span>。
+                </p>
+                <p class="text-slate-400">实际能观测到的级数列表: [ ${validOrders.join(', ')} ]</p>
+            `;
+
+            // Re-render MathJax inside output
+            if (window.MathJax) {
+                MathJax.typesetPromise([outputDiv]);
+            }
+        }
+
+        // --- Interactive Quiz Logic ---
+        const quizAnswers = { 1: 'B', 2: 'C', 3: 'B' };
+        let userScore = 0;
+        const answeredQ = {};
+
+        function checkAnswer(qNum, choice) {
+            if (answeredQ[qNum]) return; // prevent duplicate clicks
+            answeredQ[qNum] = true;
+
+            const correct = quizAnswers[qNum];
+            const explainDiv = document.getElementById(`q${qNum}-explain`);
+            explainDiv.classList.remove('hidden');
+
+            if (choice === correct) {
+                userScore++;
+                document.getElementById('quiz-score').textContent = `${userScore} / 3`;
+            }
+
+            if (qNum === 1) {
+                explainDiv.innerHTML = choice === 'B' 
+                    ? `<span class="text-emerald-400 font-bold">✓ 回答正确！</span> 对零级明纹 $k=0$，衍射角 $\varphi=0$，各波长光程差均为 0，干涉相长叠加复合成纯白色。`
+                    : `<span class="text-rose-400 font-bold">✕ 回答错误。正确答案是 B。</span> 对 $k=0$，任意波长的光程差均等于 0，干涉叠加恢复为白光。`;
+            } else if (qNum === 2) {
+                explainDiv.innerHTML = choice === 'C'
+                    ? `<span class="text-emerald-400 font-bold">✓ 回答正确！</span> 缺级条件为 $k = k' \\frac{a+b}{a} = 3 k'$，故 $k = \\pm 3, \\pm 6, \\pm 9 \\dots$ 发生缺级。`
+                    : `<span class="text-rose-400 font-bold">✕ 回答错误。正确答案是 C。</span> 缺级公式为 $k = k' \\cdot (a+b)/a = 3k'$。`;
+            } else if (qNum === 3) {
+                explainDiv.innerHTML = choice === 'B'
+                    ? `<span class="text-emerald-400 font-bold">✓ 回答正确！</span> 主极大光强 $I \\propto N^2$，缝数 $N$ 增加使明纹变得极细极亮，但主极大位置（由光栅常数 $d$ 决定）保持不变。`
+                    : `<span class="text-rose-400 font-bold">✕ 回答错误。正确答案是 B。</span> 缝数 $N$ 增加显著提升条纹锐度和亮度，主极大位置不受影响。`;
+            }
+        }
+
+        // --- Initial Load Event ---
+        window.addEventListener('load', () => {
+            updateSim();
+            runCalculation();
+            window.addEventListener('resize', updateSim);
+        });
+    </script>
+</body>
+</html>
